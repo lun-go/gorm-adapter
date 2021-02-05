@@ -62,6 +62,8 @@ func initPolicy(t *testing.T, a *Adapter) {
 
 	// Load the policy from DB.
 	err = a.LoadPolicy(e.GetModel())
+
+	a.RemovePolicy("","p",[]string{"alice", "data1", "read"})
 	if err != nil {
 		panic(err)
 	}
@@ -120,10 +122,12 @@ func TestAdapterWithGormInstanceAndCustomTable(t *testing.T) {
 		V3    string `gorm:"size:128;uniqueIndex:unique_index"`
 		V4    string `gorm:"size:128;uniqueIndex:unique_index"`
 		V5    string `gorm:"size:128;uniqueIndex:unique_index"`
+		DeletedAt gorm.DeletedAt `gorm:"index"`
+
 	}
 
 	var (
-		dsn = "root:123@tcp(172.27.84.161:3306)/sql_test?charset=utf8&parseTime=True&loc=Local"
+		dsn = "root:123@tcp(127.0.0.1:3306)/test?charset=utf8&parseTime=True&loc=Local"
 	)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
@@ -134,9 +138,9 @@ func TestAdapterWithGormInstanceAndCustomTable(t *testing.T) {
 	}
 
 	// Create an adapter
-	a, _ := NewAdapterByDBWithCustomTable(db, &CasbinRuleTest{})
-	// Initialize some policy in DB.
-	initPolicy(t, a)
+	//a, _ := NewAdapterByDBWithCustomTable(db, &CasbinRuleTest{})
+	//// Initialize some policy in DB.
+	//initPolicy(t, a)
 	// Now the DB has policy, so we can provide a normal use case.
 	// Note: you don't need to look at the above code
 	// if you already have a working DB with policy inside.
@@ -150,8 +154,11 @@ func TestAdapterWithGormInstanceAndCustomTable(t *testing.T) {
 
 		ctx = context.WithValue(ctx, CustomTableKey{}, &CasbinRuleTest{})
 
-		a,_:=NewAdapterByDBUseTableName(db.WithContext(ctx), "t_", "this_table")
+		a,_:=NewAdapterByDBUseTableName(db.Model(CasbinRuleTest{}).WithContext(ctx), "t_", "this_table")
 		initPolicy(t, a)
+
+
+
 	}
 
 

@@ -19,6 +19,7 @@ import (
 	"errors"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
@@ -45,6 +46,9 @@ type CasbinRule struct {
 	V3    string `gorm:"size:100;uniqueIndex:unique_index"`
 	V4    string `gorm:"size:100;uniqueIndex:unique_index"`
 	V5    string `gorm:"size:100;uniqueIndex:unique_index"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 type Filter struct {
