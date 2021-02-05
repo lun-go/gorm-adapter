@@ -15,7 +15,9 @@
 package gormadapter
 
 import (
+	"context"
 	"github.com/jackc/pgconn"
+	"gorm.io/gorm/logger"
 	"log"
 	"testing"
 
@@ -108,8 +110,8 @@ func initAdapterWithGormInstance(t *testing.T, db *gorm.DB) *Adapter {
 	return a
 }
 
-func initAdapterWithGormInstanceAndCustomTable(t *testing.T, db *gorm.DB) *Adapter {
-	type CasbinRule struct {
+func TestAdapterWithGormInstanceAndCustomTable(t *testing.T) {
+	type CasbinRuleTest struct {
 		ID    uint   `gorm:"primaryKey;autoIncrement"`
 		Ptype string `gorm:"size:128;uniqueIndex:unique_index"`
 		V0    string `gorm:"size:128;uniqueIndex:unique_index"`
@@ -119,6 +121,54 @@ func initAdapterWithGormInstanceAndCustomTable(t *testing.T, db *gorm.DB) *Adapt
 		V4    string `gorm:"size:128;uniqueIndex:unique_index"`
 		V5    string `gorm:"size:128;uniqueIndex:unique_index"`
 	}
+
+	var (
+		dsn = "root:123@tcp(172.27.84.161:3306)/sql_test?charset=utf8&parseTime=True&loc=Local"
+	)
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info), // // 设置这个后，可以打印出实际的执行的语句
+	})
+	if err!=nil{
+		t.Error("init",err)
+	}
+
+	// Create an adapter
+	a, _ := NewAdapterByDBWithCustomTable(db, &CasbinRuleTest{})
+	// Initialize some policy in DB.
+	initPolicy(t, a)
+	// Now the DB has policy, so we can provide a normal use case.
+	// Note: you don't need to look at the above code
+	// if you already have a working DB with policy inside.
+
+
+	{
+		ctx := db.Statement.Context
+		if ctx == nil {
+			ctx = context.Background()
+		}
+
+		ctx = context.WithValue(ctx, CustomTableKey{}, &CasbinRuleTest{})
+
+		a,_:=NewAdapterByDBUseTableName(db.WithContext(ctx), "t_", "this_table")
+		initPolicy(t, a)
+	}
+
+
+}
+
+func initAdapterWithGormInstanceAndCustomTable(t *testing.T, db *gorm.DB) *Adapter {
+	type CasbinRuleTest struct {
+		ID    uint   `gorm:"primaryKey;autoIncrement"`
+		Ptype string `gorm:"size:128;uniqueIndex:unique_index"`
+		V0    string `gorm:"size:128;uniqueIndex:unique_index"`
+		V1    string `gorm:"size:128;uniqueIndex:unique_index"`
+		V2    string `gorm:"size:128;uniqueIndex:unique_index"`
+		V3    string `gorm:"size:128;uniqueIndex:unique_index"`
+		V4    string `gorm:"size:128;uniqueIndex:unique_index"`
+		V5    string `gorm:"size:128;uniqueIndex:unique_index"`
+	}
+
 
 	// Create an adapter
 	a, _ := NewAdapterByDBWithCustomTable(db, &CasbinRule{})

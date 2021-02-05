@@ -34,7 +34,7 @@ const (
 	defaultTableName    = "casbin_rule"
 )
 
-type customTableKey struct{}
+type CustomTableKey struct{}
 
 type CasbinRule struct {
 	ID    uint   `gorm:"primaryKey;autoIncrement"`
@@ -198,7 +198,7 @@ func NewAdapterByDBWithCustomTable(db *gorm.DB, t interface{}) (*Adapter, error)
 		ctx = context.Background()
 	}
 
-	ctx = context.WithValue(ctx, customTableKey{}, t)
+	ctx = context.WithValue(ctx, CustomTableKey{}, t)
 
 	return NewAdapterByDBUseTableName(db.WithContext(ctx), "", defaultTableName)
 }
@@ -294,7 +294,7 @@ func (a *Adapter) casbinRuleTable() func(db *gorm.DB) *gorm.DB {
 }
 
 func (a *Adapter) createTable() error {
-	t := a.db.Statement.Context.Value(customTableKey{})
+	t := a.db.Statement.Context.Value(CustomTableKey{})
 	if t == nil {
 		return a.db.AutoMigrate(a.getTableInstance())
 	}
@@ -303,7 +303,7 @@ func (a *Adapter) createTable() error {
 }
 
 func (a *Adapter) dropTable() error {
-	t := a.db.Statement.Context.Value(customTableKey{})
+	t := a.db.Statement.Context.Value(CustomTableKey{})
 	if t == nil {
 		return a.db.Migrator().DropTable(a.getTableInstance())
 	}
