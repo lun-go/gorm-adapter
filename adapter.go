@@ -39,7 +39,7 @@ type CustomTableKey struct{}
 
 type CasbinRule struct {
 	ID    uint   `gorm:"primaryKey;autoIncrement"`
-	Ptype string `gorm:"size:100;uniqueIndex:unique_index"`
+	PType string `gorm:"size:100;uniqueIndex:unique_index"`
 	V0    string `gorm:"size:100;uniqueIndex:unique_index"`
 	V1    string `gorm:"size:100;uniqueIndex:unique_index"`
 	V2    string `gorm:"size:100;uniqueIndex:unique_index"`
@@ -316,7 +316,7 @@ func (a *Adapter) dropTable() error {
 }
 
 func loadPolicyLine(line CasbinRule, model model.Model) {
-	var p = []string{line.Ptype,
+	var p = []string{line.PType,
 		line.V0, line.V1, line.V2, line.V3, line.V4, line.V5}
 
 	var lineText string
@@ -408,7 +408,7 @@ func (a *Adapter) filterQuery(db *gorm.DB, filter Filter) func(db *gorm.DB) *gor
 func (a *Adapter) savePolicyLine(ptype string, rule []string) CasbinRule {
 	line := a.getTableInstance()
 
-	line.Ptype = ptype
+	line.PType = ptype
 	if len(rule) > 0 {
 		line.V0 = rule[0]
 	}
@@ -509,7 +509,7 @@ func (a *Adapter) RemovePolicies(sec string, ptype string, rules [][]string) err
 func (a *Adapter) RemoveFilteredPolicy(sec string, ptype string, fieldIndex int, fieldValues ...string) error {
 	line := a.getTableInstance()
 
-	line.Ptype = ptype
+	line.PType = ptype
 	if fieldIndex <= 0 && 0 < fieldIndex+len(fieldValues) {
 		line.V0 = fieldValues[0-fieldIndex]
 	}
@@ -533,7 +533,7 @@ func (a *Adapter) RemoveFilteredPolicy(sec string, ptype string, fieldIndex int,
 }
 
 func (a *Adapter) rawDelete(db *gorm.DB, line CasbinRule) error {
-	queryArgs := []interface{}{line.Ptype}
+	queryArgs := []interface{}{line.PType}
 
 	queryStr := "ptype = ?"
 	if line.V0 != "" {
@@ -566,7 +566,7 @@ func (a *Adapter) rawDelete(db *gorm.DB, line CasbinRule) error {
 }
 
 func appendWhere(line CasbinRule) (string, []interface{}) {
-	queryArgs := []interface{}{line.Ptype}
+	queryArgs := []interface{}{line.PType}
 
 	queryStr := "ptype = ?"
 	if line.V0 != "" {
