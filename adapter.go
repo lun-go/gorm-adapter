@@ -172,10 +172,10 @@ func NewAdapterByDBUseTableName(db *gorm.DB, prefix string, tableName string) (*
 	}
 
 	a.db = db.Scopes(a.casbinRuleTable()).Session(&gorm.Session{Context: db.Statement.Context})
-	err := a.createTable()
-	if err != nil {
-		return nil, err
-	}
+	//err := a.createTable()
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	return a, nil
 }
@@ -275,7 +275,8 @@ func (a *Adapter) open() error {
 	}
 
 	a.db = db.Scopes(a.casbinRuleTable()).Session(&gorm.Session{})
-	return a.createTable()
+	return nil
+	//return a.createTable()
 }
 
 func (a *Adapter) close() error {
@@ -433,14 +434,14 @@ func (a *Adapter) savePolicyLine(ptype string, rule []string) CasbinRule {
 
 // SavePolicy saves policy to database.
 func (a *Adapter) SavePolicy(model model.Model) error {
-	err := a.dropTable()
-	if err != nil {
-		return err
-	}
-	err = a.createTable()
-	if err != nil {
-		return err
-	}
+	//err := a.dropTable()
+	//if err != nil {
+	//	return err
+	//}
+	//err = a.createTable()
+	//if err != nil {
+	//	return err
+	//}
 
 	for ptype, ast := range model["p"] {
 		for _, rule := range ast.Policy {
